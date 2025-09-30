@@ -35,6 +35,16 @@ class WordGuesserApp < Sinatra::Base
     redirect '/show'
   end
 
+  post '/new/create' do
+    # NOTE: don't change next line - it's needed by autograder!
+    word = WordGuesserGame.get_random_word
+    # NOTE: don't change previous line - it's needed by autograder!
+  
+    @game = WordGuesserGame.new(word)
+    redirect '/show'
+  end
+  
+
   post '/guess' do
     guess = params[:guess].to_s[0] 
 
