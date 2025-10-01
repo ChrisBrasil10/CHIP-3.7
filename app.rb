@@ -35,32 +35,45 @@ class WordGuesserApp < Sinatra::Base
     redirect '/show'
   end
 
-  # Use existing methods in WordGuesserGame to process a guess.
-  # If a guess is repeated, set flash[:message] to "You have already used that letter."
-  # If a guess is invalid, set flash[:message] to "Invalid guess."
+  post '/new/create' do
+    # NOTE: don't change next line - it's needed by autograder!
+    word = WordGuesserGame.get_random_word
+    # NOTE: don't change previous line - it's needed by autograder!
+  
+    @game = WordGuesserGame.new(word)
+    redirect '/show'
+  end
+  
+
   post '/guess' do
-    params[:guess].to_s[0]
-    ### YOUR CODE HERE ###
+    guess = params[:guess].to_s[0] 
+
+    if !guess || guess.empty? || guess !~ /[a-zA-Z]/
+      flash[:message] = "Invalid guess."
+    elsif @game.guesses.include?(guess.downcase) || @game.wrong_guesses.include?(guess.downcase)
+      flash[:message] = "You have already used that letter."
+    else
+      @game.guess(guess)
+    end
+
     redirect '/show'
   end
 
-  # Everytime a guess is made, we should eventually end up at this route.
-  # Use existing methods in WordGuesserGame to check if player has
-  # won, lost, or neither, and take the appropriate action.
-  # Notice that the show.erb template expects to use the instance variables
-  # wrong_guesses and word_with_guesses from @game.
   get '/show' do
-    ### YOUR CODE HERE ###
-    erb :show # You may change/remove this line
+    if @game.word_with_guesses == @game.word
+      redirect '/win'
+    elsif @game.wrong_guesses.length >= 7
+      redirect '/lose'
+    else
+      erb :show
+    end
   end
 
   get '/win' do
-    ### YOUR CODE HERE ###
-    erb :win # You may change/remove this line
+    erb :win
   end
 
   get '/lose' do
-    ### YOUR CODE HERE ###
-    erb :lose # You may change/remove this line
+    erb :lose
   end
 end
